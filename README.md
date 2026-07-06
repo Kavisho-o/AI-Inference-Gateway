@@ -2,6 +2,8 @@
 
 A single API endpoint that routes chat completions across OpenAI, Anthropic, Gemini, and a local Ollama model — with automatic failover when a provider is down, rate limited, or misconfigured, plus response caching, per-request cost tracking, and circuit breakers so a struggling provider gets skipped instead of retried into the ground.
 
+Live at: [JUMP HERE](https://ai-inference-gateway.onrender.com/docs)
+
 ## What it does
 
 1. Client sends one request to `/v1/chat/completions` — same shape regardless of which provider ends up answering
