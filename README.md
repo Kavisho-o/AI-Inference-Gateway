@@ -1,6 +1,6 @@
 # inference-gateway
 
-A single API endpoint that routes chat completions across OpenAI, Anthropic, Gemini, and a local Ollama model — with automatic failover when a provider is down, rate limited, or misconfigured, plus response caching, per-request cost tracking, and circuit breakers so a struggling provider gets skipped instead of retried into the ground.
+A single API endpoint that routes chat completions across Groq, OpenAI, Anthropic, Gemini, and a local Ollama model — with automatic failover when a provider is down, rate limited, or misconfigured, plus response caching, per-request cost tracking, and circuit breakers so a struggling provider gets skipped instead of retried into the ground.
 
 Live at: [JUMP HERE](https://ai-inference-gateway.onrender.com/docs)
 
@@ -9,7 +9,7 @@ Live at: [JUMP HERE](https://ai-inference-gateway.onrender.com/docs)
 1. Client sends one request to `/v1/chat/completions` — same shape regardless of which provider ends up answering
 2. Request hits a response cache first — identical requests within the TTL window return instantly with zero provider calls
 3. A token-bucket rate limiter checks the caller's API key before anything else runs
-4. The router walks a fallback chain (`openai → anthropic → gemini → ollama` by default, or a single explicit provider if specified)
+4. The router walks a configurable fallback chain (`groq → openai → anthropic → gemini → ollama` by default, or a single explicit provider if specified).
 5. Each provider call goes through a circuit breaker — a provider that's failed repeatedly gets skipped entirely instead of retried, until a recovery window passes
 6. Failed calls retry with exponential backoff up to a configured limit, but only for retryable failures (timeouts, 429s, 5xx) — auth failures and bad requests fail fast and move to the next provider immediately
 7. On success: the response is cached, cost is estimated from actual token usage and logged per-provider, and the client gets back a consistent schema no matter which provider answered
@@ -28,7 +28,7 @@ Live at: [JUMP HERE](https://ai-inference-gateway.onrender.com/docs)
 
 ## Stack
 
-`FastAPI` · `httpx` (async) · `pydantic` / `pydantic-settings` · `OpenAI` · `Anthropic` · `Gemini` · `Ollama` (local) · `Docker`
+`FastAPI` · `httpx` (async) · `pydantic` / `pydantic-settings` · `Groq` · `OpenAI` · `Anthropic` · `Gemini` · `Ollama` (local) · `Docker`
 
 ## Architecture
 
@@ -64,45 +64,41 @@ Live at: [JUMP HERE](https://ai-inference-gateway.onrender.com/docs)
 
                         ▼
 
-                  Router
+                    Router
 
                         │
 
-          ┌─────────────┼──────────────┐
+      ┌─────────┬─────────┬─────────┬─────────┬
+      ▼         ▼         ▼         ▼         ▼
 
-          ▼             ▼              ▼
+    Groq     OpenAI   Anthropic   Gemini    Ollama
 
-     OpenAI       Anthropic      Gemini
+      │         │         │         │         │
+      └─────────┴─────────┴─────────┴─────────┘
+                        │
+                        ▼
 
-          │             │             │
+         Circuit Breaker per Provider
 
-          ▼             ▼             ▼
+                        │
+                        ▼
 
-     Circuit Breaker per Provider
+        Retry + Exponential Backoff
 
-          │
+                        │
+                        ▼
 
-          ▼
+            Successful Response
 
-   Retry + Exponential Backoff
+                        │
+                        ▼
 
-          │
+      Cost Tracker + Cache Response
 
-          ▼
+                        │
+                        ▼
 
-      Successful Response
-
-          │
-
-          ▼
-
- Cost Tracker + Cache Response
-
-          │
-
-          ▼
-
-       Return to Client
+               Return to Client
 ```
 
 ## Example request
@@ -148,9 +144,13 @@ Response:
 
 ## Benchmarking
 
-A simple `benchmark.py` script fires concurrent requests at the gateway and reports latency stats. First run against a cold Ollama model shows only partial success while the model loads; the second run, once warm, completes all requests:
+A simple `benchmark.py` script fires concurrent requests at the gateway and reports latency statistics. The same benchmark was run against both the local Ollama backend and the cloud-hosted Groq API, exercising the exact same routing, retry, cache and response pipeline.
 
-![Benchmark script output showing per-request latency against the ollama provider](ss/benchmarking.png)
+### Ollama (local inference)
+
+The first run against a cold Ollama model shows only partial success while the model loads into memory. Once the model is warm, all requests complete successfully.
+
+![Benchmark results using the local Ollama provider](ss/benchmarking.png)
 
 ```text
 Successful Requests : 5/10
@@ -174,6 +174,12 @@ Average Latency     : 11509.43 ms
 Fastest Request     : 9021.79 ms
 Slowest Request     : 14773.77 ms
 ```
+
+### Groq (cloud inference)
+
+Running the same benchmark against Groq demonstrates significantly lower latency while using the same gateway architecture, provider abstraction, retry logic, circuit breakers, caching and cost tracking.
+
+![Benchmark results using the Groq provider](ss/benchmarking1.png)
 
 ## Bugs worth knowing about
 
@@ -207,4 +213,10 @@ Requires [Ollama](https://ollama.com) running locally for the `ollama` provider 
 
 ## Testing
 
-Full endpoint testing done via Swagger UI (`/docs`) and PowerShell, covering: successful completions per provider, cache-hit verification, full fallback chain traversal on missing/bad credentials, rate limiter enforcement (429 after burst), and circuit breaker tripping + recovery on a deliberately broken provider.
+Full endpoint testing was performed through Swagger UI (`/docs`) and PowerShell, covering:
+- Successful completions using Groq, Gemini and Ollama
+- Cache-hit verification
+- Automatic fallback between providers
+- Rate limiter enforcement (429 after burst)
+- Circuit breaker tripping and recovery
+- Retry behaviour with exponential backoff

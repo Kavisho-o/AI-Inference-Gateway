@@ -25,7 +25,7 @@ payload = {
     ],
     # Use a working provider while benchmarking.
     # Change to "gemini" if you want to benchmark Gemini instead.
-    "provider": "gemini"
+    "provider": "groq"
 }
 
 
@@ -70,7 +70,7 @@ async def hit(i: int):
 
 
 async def main():
-    tasks = [hit(i) for i in range(5)]
+    tasks = [hit(i) for i in range(10)]
 
     latencies = await asyncio.gather(*tasks)
     successful = [x for x in latencies if x is not None]

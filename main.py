@@ -15,6 +15,7 @@ from models import ChatRequest, ChatResponse
 from providers.anthropic_provider import AnthropicProvider
 from providers.gemini_provider import GeminiProvider
 from providers.ollama_provider import OllamaProvider
+from providers.groq_provider import GroqProvider
 from rate_limiter import RateLimiter
 from cache import ResponseCache
 from cost_tracker import CostTracker
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
         "anthropic": AnthropicProvider(settings.anthropic_api_key),
         "gemini": GeminiProvider(settings.gemini_api_key),
         "ollama": OllamaProvider(settings.ollama_base_url),
+        "groq": GroqProvider(settings.groq_api_key)
     }
     cache = ResponseCache(settings.cache_ttl_seconds)
     cost_tracker = CostTracker()

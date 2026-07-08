@@ -18,9 +18,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str = os.getenv("ANTHROPIC_API_KEY", "")
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "")
 
     default_provider: str = os.getenv("DEFAULT_PROVIDER", "ollama")
-    fallback_chain: list[str] = ["openai", "anthropic", "gemini", "ollama"]
+    fallback_chain: list[str] = ["groq","openai", "anthropic", "gemini", "ollama"]
 
     rate_limit_per_minute: int = 60
     rate_limit_burst: int = 10
