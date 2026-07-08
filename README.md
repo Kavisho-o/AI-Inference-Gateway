@@ -107,41 +107,6 @@ A request routed explicitly to the local Ollama provider, hit via the Swagger UI
 
 ![Example request against the ollama provider via Swagger UI](ss/swaggerUI.png)
 
-```bash
-curl -X 'POST' \
-  'http://127.0.0.1:8000/v1/chat/completions' \
-  -H 'accept: application/json' \
-  -H 'x-api-key: anonymous' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "messages": [
-    {
-      "role": "user",
-      "content": "Explain recursion in one sentence."
-    }
-  ],
-  "provider": "ollama",
-  "temperature": 0.7,
-  "max_tokens": 100,
-  "stream": false
-}'
-```
-
-Response:
-
-```json
-{
-  "content": "Recursion is a programming technique where a function calls itself repeatedly until it reaches a base case that stops the recursive process, solving the problem by breaking it down into smaller instances of the same problem.",
-  "provider_used": "ollama",
-  "model_used": "llama3.2",
-  "latency_ms": 1812.000000034459,
-  "cached": false,
-  "tokens_prompt": 0,
-  "tokens_completion": 0,
-  "estimated_cost_usd": 0
-}
-```
-
 ## Benchmarking
 
 A simple `benchmark.py` script fires concurrent requests at the gateway and reports latency statistics. The same benchmark was run against both the local Ollama backend and the cloud-hosted Groq API, exercising the exact same routing, retry, cache and response pipeline.
@@ -151,29 +116,6 @@ A simple `benchmark.py` script fires concurrent requests at the gateway and repo
 The first run against a cold Ollama model shows only partial success while the model loads into memory. Once the model is warm, all requests complete successfully.
 
 ![Benchmark results using the local Ollama provider](ss/benchmarking.png)
-
-```text
-Successful Requests : 5/10
-Average Latency     : 8399.93 ms
-Fastest Request     : 6474.76 ms
-Slowest Request     : 9886.64 ms
-
-00 | ollama | 9646.99 ms  | cached=False
-07 | ollama | 9021.79 ms  | cached=False
-09 | ollama | 9264.53 ms  | cached=False
-03 | ollama | 10866.87 ms | cached=False
-04 | ollama | 11311.13 ms | cached=False
-08 | ollama | 11192.39 ms | cached=False
-02 | ollama | 12836.89 ms | cached=False
-06 | ollama | 12683.51 ms | cached=False
-05 | ollama | 13496.39 ms | cached=False
-01 | ollama | 14773.77 ms | cached=False
-
-Successful Requests : 10/10
-Average Latency     : 11509.43 ms
-Fastest Request     : 9021.79 ms
-Slowest Request     : 14773.77 ms
-```
 
 ### Groq (cloud inference)
 
