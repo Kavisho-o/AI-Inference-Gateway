@@ -1,3 +1,11 @@
+"""
+Tracks estimated inference cost across all providers.
+
+Records per-request costs calculated from token usage and provider
+pricing, maintains request counts, and exposes aggregated usage
+statistics through the /stats endpoint.
+"""
+
 import threading
 from collections import defaultdict
 

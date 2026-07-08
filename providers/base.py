@@ -1,3 +1,16 @@
+"""
+Defines the common interface every LLM provider adapter must implement.
+
+The Router never talks to OpenAI, Anthropic, Gemini, etc. directly.
+Instead, every provider subclasses BaseProvider and exposes the same
+`chat()` method, allowing the gateway to swap providers without changing
+routing logic.
+
+Also defines ProviderError, which classifies provider failures as
+retryable (timeouts, 429s, 5xx) or non-retryable (400, 401), enabling
+the Router's retry and failover behaviour.
+"""
+
 from abc import ABC, abstractmethod
 from models import Message
 

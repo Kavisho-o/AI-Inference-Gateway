@@ -1,3 +1,14 @@
+"""
+Anthropic provider adapter.
+
+Transforms generic gateway requests into Anthropic's Messages API
+format (including separate system prompts), performs the API request
+using the shared HTTP client, normalizes the response, and converts
+provider-specific failures into ProviderError for Router retry/fallback.
+
+Also stores Anthropic pricing used by the CostTracker.
+"""
+
 import httpx
 
 from providers.base import BaseProvider, ProviderError

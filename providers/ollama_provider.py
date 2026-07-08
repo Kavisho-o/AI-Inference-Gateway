@@ -1,3 +1,12 @@
+"""
+Ollama provider adapter.
+
+Routes gateway requests to a locally running Ollama instance, converts
+the response into the gateway's standard format, and wraps connection
+or timeout failures as ProviderError. Since Ollama currently does not
+return token usage, token counts are reported as zero.
+"""
+
 import httpx
 from providers.base import BaseProvider, ProviderError
 

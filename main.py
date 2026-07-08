@@ -1,3 +1,14 @@
+"""
+FastAPI application entry point.
+
+Initializes shared infrastructure during startup (providers, router,
+cache, rate limiter, cost tracker, and HTTP client), exposes the public
+chat completion endpoint, enforces rate limiting, and returns a
+provider-agnostic response regardless of which LLM generated it.
+
+Also exposes health and usage statistics endpoints.
+"""
+
 from fastapi import FastAPI, HTTPException, Header, Depends
 from contextlib import asynccontextmanager
 from models import ChatRequest, ChatResponse

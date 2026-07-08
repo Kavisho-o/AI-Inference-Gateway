@@ -1,3 +1,11 @@
+"""
+Simple in-memory response cache with TTL expiration.
+
+Requests are hashed using their messages and generation parameters,
+allowing identical requests to reuse previous responses instead of
+calling an LLM again, reducing latency and API cost.
+"""
+
 import hashlib
 import json
 import time

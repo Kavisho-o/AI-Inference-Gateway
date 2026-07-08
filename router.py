@@ -1,3 +1,13 @@
+"""
+Core orchestration layer of the inference gateway.
+
+Coordinates request execution by checking the cache, selecting providers
+using the configured fallback chain, enforcing circuit breakers,
+performing retries with exponential backoff, estimating request cost,
+recording usage statistics, and caching successful responses before
+returning a unified result.
+"""
+
 import asyncio
 import time
 from providers.base import ProviderError

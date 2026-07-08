@@ -1,3 +1,14 @@
+"""
+Google Gemini provider adapter.
+
+Formats chat messages into Gemini's generateContent API request,
+executes the request, extracts the generated response and token usage,
+and converts Gemini-specific HTTP failures into ProviderError so the
+Router can apply retries and fallback.
+
+Also defines Gemini pricing for cost estimation.
+"""
+
 import httpx
 
 from providers.base import BaseProvider, ProviderError

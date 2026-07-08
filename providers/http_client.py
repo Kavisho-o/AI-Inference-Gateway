@@ -1,7 +1,15 @@
+"""
+Creates and manages a shared httpx.AsyncClient used by provider adapters.
+
+Instead of creating a new HTTP connection for every request, the gateway
+initializes one reusable client during FastAPI startup and closes it
+during shutdown, enabling connection pooling, lower latency, and reduced
+resource usage.
+"""
+
 import httpx
 
 _client: httpx.AsyncClient | None = None
-
 
 async def startup():
     global _client

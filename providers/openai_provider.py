@@ -1,3 +1,15 @@
+"""
+OpenAI provider adapter.
+
+Converts the gateway's generic request format into the OpenAI Chat
+Completions API, executes the request through the shared HTTP client,
+normalizes the response into the gateway's standard schema, and maps
+OpenAI-specific failures into ProviderError so the Router can retry or
+fail over correctly.
+
+Also exposes OpenAI pricing for cost estimation.
+"""
+
 import httpx
 from providers.http_client import get_client
 from providers.base import BaseProvider, ProviderError

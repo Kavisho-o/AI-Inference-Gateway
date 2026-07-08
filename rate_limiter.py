@@ -1,3 +1,11 @@
+"""
+Implements API rate limiting using the Token Bucket algorithm.
+
+Each API key receives an independent token bucket, allowing controlled
+burst traffic while enforcing a sustained request rate to protect the
+gateway from abuse.
+"""
+
 import time
 import threading
 from collections import defaultdict

@@ -1,3 +1,13 @@
+"""
+Central configuration for the gateway.
+
+Loads environment variables and application settings using Pydantic,
+including provider credentials, fallback order, retry behaviour,
+rate-limiting, cache settings, and circuit breaker configuration.
+
+Provides a cached Settings instance shared across the application.
+"""
+
 import os
 from functools import lru_cache
 from pydantic_settings import BaseSettings

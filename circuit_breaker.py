@@ -1,3 +1,12 @@
+"""
+Implements the Circuit Breaker pattern for each provider.
+
+Tracks provider failures and temporarily blocks requests to providers
+that repeatedly fail. After a recovery period, a trial request is
+allowed to determine whether the provider has recovered before normal
+traffic resumes.
+"""
+
 import time
 import threading
 from enum import Enum

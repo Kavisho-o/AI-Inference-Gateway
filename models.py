@@ -1,3 +1,11 @@
+"""
+Shared Pydantic models used throughout the gateway.
+
+Defines the standard request and response schema exchanged between
+clients, the API layer, the Router, and provider adapters, ensuring all
+providers operate on a common data format.
+"""
+
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, Literal
 
