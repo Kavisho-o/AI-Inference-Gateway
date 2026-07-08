@@ -33,31 +33,76 @@ Live at: [JUMP HERE](https://ai-inference-gateway.onrender.com/docs)
 ## Architecture
 
 ```text
-Client request
-     │
-     ▼
-Rate Limiter (token bucket, per API key)
-     │
-     ▼
-Cache check (SHA-256 of request payload)
-  → hit: return cached response, no provider call
-     │
-     ▼ (miss)
-Router — walks fallback chain (openai → anthropic → gemini → ollama)
-     │
-     ├── Circuit Breaker check per provider
-     │      open → skip to next provider
-     │      closed/half-open → attempt call
-     │
-     ├── Provider adapter (OpenAI | Anthropic | Gemini | Ollama)
-     │      retryable failure → backoff + retry (bounded)
-     │      non-retryable failure → fail fast, next provider
-     │
-     ▼
-Cost Tracker (per-provider running totals)
-     │
-     ▼
-Cache write + response to client
+                     CLIENT
+
+                        │
+                        ▼
+
+              FastAPI Inference Gateway
+
+                        │
+                        ▼
+
+                Authentication
+
+                        │
+                        ▼
+
+                 Rate Limiter
+             (Token Bucket Algorithm)
+
+                        │
+                        ▼
+
+                 Request Cache
+
+                        │
+                 Cache Hit? ─────► Return immediately
+
+                        │
+                 Cache Miss
+
+                        ▼
+
+                  Router
+
+                        │
+
+          ┌─────────────┼──────────────┐
+
+          ▼             ▼              ▼
+
+     OpenAI       Anthropic      Gemini
+
+          │             │             │
+
+          ▼             ▼             ▼
+
+     Circuit Breaker per Provider
+
+          │
+
+          ▼
+
+   Retry + Exponential Backoff
+
+          │
+
+          ▼
+
+      Successful Response
+
+          │
+
+          ▼
+
+ Cost Tracker + Cache Response
+
+          │
+
+          ▼
+
+       Return to Client
 ```
 
 ## Bugs worth knowing about
