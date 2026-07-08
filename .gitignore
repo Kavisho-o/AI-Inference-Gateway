@@ -4,4 +4,3 @@ venv/
 .env
 __pycache__/**
 providers/__pycache__/**
-ss/
