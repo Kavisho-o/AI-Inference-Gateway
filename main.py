@@ -35,9 +35,12 @@ async def lifespan(app: FastAPI):
         "openai": OpenAIProvider(settings.openai_api_key),
         "anthropic": AnthropicProvider(settings.anthropic_api_key),
         "gemini": GeminiProvider(settings.gemini_api_key),
-        "ollama": OllamaProvider(settings.ollama_base_url),
+        # "ollama": OllamaProvider(settings.ollama_base_url),
         "groq": GroqProvider(settings.groq_api_key)
     }
+    if settings.ollama_base_url != "DISABLED":
+        providers["ollama"] = OllamaProvider(settings.ollama_base_url)
+        
     cache = ResponseCache(settings.cache_ttl_seconds)
     cost_tracker = CostTracker()
     state["rate_limiter"] = RateLimiter(settings.rate_limit_per_minute, settings.rate_limit_burst)
