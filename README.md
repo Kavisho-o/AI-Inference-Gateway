@@ -153,7 +153,6 @@ uvicorn main:app --reload
 
 Requires [Ollama](https://ollama.com) running locally for the `ollama` provider (`ollama pull llama3.2`), and free-tier API keys for any paid providers you want to test.
 
-
 ## Testing
 
 Full endpoint testing was performed through Swagger UI (`/docs`) and PowerShell, covering:
